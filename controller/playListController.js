@@ -38,6 +38,9 @@ export const getPlayListTracks = async (req, res) => {
       message: "Unauthorized",
     });
   } else {
-    return res.status(200).json(getPlayListTracks.data);
+    let trackNames = getPlayListTracks?.data.items.map((item)=>{
+      return item.track.name+"-"+item.track.artists[0].name
+    })
+    return res.status(200).json(trackNames);
   }
 };
