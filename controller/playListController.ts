@@ -45,10 +45,14 @@ export const getPlayListTracks = async (req: Request, res: Response) => {
         message: "Unauthorized",
       });
     } else {
-      let trackNames = getPlayListTracks?.data.items.map((item: PlayList) => {
-        return item.track.name + "-" + item.track.artists[0].name;
+      let trackDetails = getPlayListTracks?.data.items.map((item: PlayList) => {
+        return {
+          "name":item.track.name + "-" + item.track.artists[0].name,
+          "artist": item.track.artists,
+          "images": item.track.images
+        }
       });
-      return res.status(200).json(trackNames);
+      return res.status(200).json(trackDetails);
     }
   } else {
     return res.status(401).json({

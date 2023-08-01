@@ -3,6 +3,11 @@ interface PlayList{
         name: string;
         artists: [{
             name: string;
+        }],
+        images:[{
+            height: number,
+            url: string;
+            width: number;
         }]
     }
 }
