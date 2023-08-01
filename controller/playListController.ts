@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Request, Response } from "express";
-import  PlayList from './../types/playList'
+import  PlayList from './../types/PlayList.ts'
 export const getPlayList = async (req: Request, res: Response) => {
   let auth = req.headers.authorization;
   let access_token: string[] | undefined = auth?.split(" ");
