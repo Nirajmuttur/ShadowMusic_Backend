@@ -1,5 +1,5 @@
 import express from 'express';
-import {authenticate,redirect} from './../controller/authController.js'
+import {authenticate,redirect} from '../controller/authController.ts'
 const router = express.Router();
 
 router.route('/login').get(authenticate)

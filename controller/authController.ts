@@ -1,6 +1,7 @@
 import querystring from "querystring";
 import axios from "axios";
-function generateRandomString(length) {
+import { Request, Response } from "express";
+function generateRandomString(length: number) {
   let text = "";
   let possible =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -11,7 +12,7 @@ function generateRandomString(length) {
   return text;
 }
 
-export const authenticate = (req, res) => {
+export const authenticate = (req: Request, res: Response) => {
   var state = generateRandomString(16);
   var scope = "user-read-private user-read-email";
   res.redirect(
@@ -26,8 +27,8 @@ export const authenticate = (req, res) => {
   );
 };
 
-export const redirect = async (req, res) => {
-  var code = req.query.code || null;
+export const redirect = async (req: Request, res: Response) => {
+  var code: string = <string>req.query.code || "";
   var state = req.query.state || null;
 
   if (state === null) {
@@ -49,7 +50,7 @@ export const redirect = async (req, res) => {
         headers: {
           Authorization:
             "Basic " +
-            new Buffer.from(
+            Buffer.from(
               process.env.SPOTIFY_CLIENT_ID +
                 ":" +
                 process.env.SPOTIFY_CLIENT_SECRET
@@ -65,9 +66,9 @@ export const redirect = async (req, res) => {
       },
     });
     let data = {
-        token: spotifyResponse.data,
-        userDetails: userDetails.data
-    }
+      token: spotifyResponse.data,
+      userDetails: userDetails.data,
+    };
     return res.status(200).json(data);
   }
 };

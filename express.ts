@@ -4,8 +4,8 @@ import helmet from 'helmet'
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 
-import authRoutes from './routes/authRoutes.js'
-import playListRoutes from './routes/playListRoutes.js';
+import authRoutes from './routes/authRoutes.ts'
+import playListRoutes from './routes/playListRoutes.ts';
 
 dotenv.config()
 const app = express()
