@@ -6,6 +6,7 @@ import dotenv from 'dotenv'
 
 import authRoutes from './routes/authRoutes.ts'
 import playListRoutes from './routes/playListRoutes.ts';
+import trackRoutes from './routes/trackRoutes.ts';
 
 dotenv.config()
 const app = express()
@@ -17,6 +18,7 @@ app.use(bodyParser.urlencoded({extended: true}))
 
 app.use('/api', authRoutes)
 app.use('/api', playListRoutes)
+app.use('/api',trackRoutes)
 
 app.get('/', (req,res)=>{
     res.send('Hello World')
