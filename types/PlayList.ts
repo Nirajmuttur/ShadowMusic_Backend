@@ -1,15 +1,8 @@
 interface PlayList{
-    track: {
-        name: string;
-        artists: [{
-            name: string;
-        }],
-        images:[{
-            height: number,
-            url: string;
-            width: number;
-        }]
-    }
+    id: number,
+    name: string,
+    images: []
+
 }
 
 export default PlayList

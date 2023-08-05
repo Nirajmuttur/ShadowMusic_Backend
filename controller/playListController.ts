@@ -1,6 +1,8 @@
 import axios from "axios";
 import { Request, Response } from "express";
-import  PlayList from './../types/PlayList.ts'
+import PlayListTrack from "./../types/PlayListTrack.ts";
+import PlayList from "../types/PlayList.ts";
+
 export const getPlayList = async (req: Request, res: Response) => {
   let auth = req.headers.authorization;
   let access_token: string[] | undefined = auth?.split(" ");
@@ -18,7 +20,18 @@ export const getPlayList = async (req: Request, res: Response) => {
         message: "Unauthorized",
       });
     } else {
-      return res.status(200).json(getPlayList.data);
+      let data = {
+        total: getPlayList.data.total,
+        items: getPlayList.data.items.map((i: PlayList) => {
+          return {
+            id: i.id,
+            image: i.images,
+            name: i.name,
+          };
+        }),
+      };
+
+      return res.status(200).json(data);
     }
   } else {
     return res.status(401).json({
@@ -45,13 +58,15 @@ export const getPlayListTracks = async (req: Request, res: Response) => {
         message: "Unauthorized",
       });
     } else {
-      let trackDetails = getPlayListTracks?.data.items.map((item: PlayList) => {
-        return {
-          "name":item.track.name + "-" + item.track.artists[0].name,
-          "artist": item.track.artists,
-          "images": item.track.images
+      let trackDetails = getPlayListTracks?.data.items.map(
+        (item: PlayListTrack) => {
+          return {
+            name: item.track.name + "-" + item.track.artists[0].name,
+            artist: item.track.artists,
+            images: item.track.images,
+          };
         }
-      });
+      );
       return res.status(200).json(trackDetails);
     }
   } else {
