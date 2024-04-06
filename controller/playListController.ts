@@ -1,77 +1,71 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { Request, Response } from "express";
 import PlayListTrack from "./../types/PlayListTrack.ts";
 import PlayList from "../types/PlayList.ts";
+import { asyncHandler } from "../utils/asyncHandler.ts";
+import { ApiError } from "../utils/ApiError.ts";
+import { ApiResponse } from "../utils/ApiResponse.ts";
 
-export const getPlayList = async (req: Request, res: Response) => {
-  let auth = req.headers.authorization;
-  let access_token: string[] | undefined = auth?.split(" ");
-  if (access_token) {
-    const getPlayList = await axios.get(
-      `${process.env.SPOTIFY_URL}/me/playlists`,
-      {
-        headers: {
-          Authorization: `Bearer ${access_token[1]}`,
-        },
-      }
-    );
-    if (getPlayList.status === 401) {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
-    } else {
-      let data = {
-        total: getPlayList.data.total,
-        items: getPlayList.data.items.map((i: PlayList) => {
-          return {
-            id: i.id,
-            image: i.images,
-            name: i.name,
-          };
-        }),
-      };
-
-      return res.status(200).json(data);
+export const getPlayList = asyncHandler(async (req: Request, res: Response) => {
+  const auth = req.headers.authorization;
+  const accessToken = auth?.split(" ")[1];
+  const response: AxiosResponse<any> = await axios.get(
+    `${process.env.SPOTIFY_URL}/me/playlists`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     }
-  } else {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
-  }
-};
+  );
+  if (response.status === 200) {
+    const playlists: PlayList[] = response.data.items.map((item: any) => ({
+      id: item.id,
+      images: item.images, // Assuming item.images is an array of images
+      name: item.name,
+    }));
 
-export const getPlayListTracks = async (req: Request, res: Response) => {
-  let auth = req.headers.authorization;
-  let access_token = auth?.split(" ");
+    const responseData = {
+      total: response.data.total,
+      playlists,
+    };
+    return res.status(201).json(
+      new ApiResponse(200, responseData)
+    )
+  }
+  else {
+    throw new ApiError(response.status, "Something went wrong")
+  }
+
+});
+
+export const getPlayListTracks = asyncHandler(async (req: Request, res: Response) => {
+  const auth = req.headers.authorization;
+  const accessToken = auth?.split(" ")[1];
   let playlistId = req.params.playlistId;
-  if (access_token) {
-    const getPlayListTracks = await axios.get(
-      `${process.env.SPOTIFY_URL}/playlists/${playlistId}/tracks`,
-      {
-        headers: {
-          Authorization: `Bearer ${access_token[1]}`,
-        },
+  const response: AxiosResponse<any> = await axios.get(
+    `${process.env.SPOTIFY_URL}/playlists/${playlistId}/tracks`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+  if (response.status === 200) {
+    const trackDetails:PlayListTrack[] = response.data.items.map(
+      (item: PlayListTrack) => {
+        return {
+          name: item.track.name + "-" + item.track.artists[0].name,
+          artist: item.track.artists,
+          images: item.track.images,
+        };
       }
     );
-    if (getPlayListTracks.status === 401) {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
-    } else {
-      let trackDetails = getPlayListTracks?.data.items.map(
-        (item: PlayListTrack) => {
-          return {
-            name: item.track.name + "-" + item.track.artists[0].name,
-            artist: item.track.artists,
-            images: item.track.images,
-          };
-        }
-      );
-      return res.status(200).json(trackDetails);
-    }
-  } else {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
+    return res.status(201).json(
+      new ApiResponse(200, trackDetails)
+    )
   }
-};
+  else {
+    throw new ApiError(response.status, "Something went wrong")
+  }
+}
+);

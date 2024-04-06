@@ -1,14 +1,14 @@
-interface PlayListTrack{
+interface PlayListTrack {
     track: {
         name: string;
-        artists: [{
+        artists: {
             name: string;
-        }],
-        images:[{
+        }[],
+        images: {
             height: number,
             url: string;
             width: number;
-        }]
+        }[]
     }
 }
 

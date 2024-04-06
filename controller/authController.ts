@@ -1,6 +1,9 @@
 import querystring from "querystring";
 import axios from "axios";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import { asyncHandler } from "../utils/asyncHandler";
+import { ApiError } from "../utils/ApiError";
+
 function generateRandomString(length: number) {
   let text = "";
   let possible =
@@ -17,13 +20,13 @@ export const authenticate = (req: Request, res: Response) => {
   var scope = "user-read-private user-read-email";
   res.redirect(
     "https://accounts.spotify.com/authorize?" +
-      querystring.stringify({
-        response_type: "code",
-        client_id: process.env.SPOTIFY_CLIENT_ID,
-        scope: scope,
-        redirect_uri: process.env.SPOTIFY_REDIRECT_URL,
-        state: state,
-      })
+    querystring.stringify({
+      response_type: "code",
+      client_id: process.env.SPOTIFY_CLIENT_ID,
+      scope: scope,
+      redirect_uri: process.env.SPOTIFY_REDIRECT_URL,
+      state: state,
+    })
   );
 };
 
@@ -34,9 +37,9 @@ export const redirect = async (req: Request, res: Response) => {
   if (state === null) {
     res.redirect(
       "/#" +
-        querystring.stringify({
-          error: "state_mismatch",
-        })
+      querystring.stringify({
+        error: "state_mismatch",
+      })
     );
   } else {
     const spotifyResponse = await axios.post(
@@ -52,8 +55,8 @@ export const redirect = async (req: Request, res: Response) => {
             "Basic " +
             Buffer.from(
               process.env.SPOTIFY_CLIENT_ID +
-                ":" +
-                process.env.SPOTIFY_CLIENT_SECRET
+              ":" +
+              process.env.SPOTIFY_CLIENT_SECRET
             ).toString("base64"),
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -72,3 +75,34 @@ export const redirect = async (req: Request, res: Response) => {
     return res.status(200).json(data);
   }
 };
+
+const spotifyAuthMiddelware = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const token = req.headers.authorization?.replace('Bearer ', '')
+  if (!token) {
+    throw new ApiError(401, "Unauthorized")
+  }
+
+  try {
+    const response = await axios.get('https://api.spotify.com/v1/me', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.status === 200) {
+      return next();
+    } else {
+      throw new ApiError(response.status, "Unauthorized");
+    }
+  } catch (error:any) {
+    if (error.response) {
+      throw new ApiError(error.response.status, "Spotify API Error");
+    } else  {
+      throw new ApiError(500, "Spotify API request failed");
+    }
+  }
+
+
+})
+
+export { spotifyAuthMiddelware }
