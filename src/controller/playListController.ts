@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { Request, Response } from "express";
-import PlayListTrack from "./../types/PlayListTrack.ts";
+import PlayListTrack from "../types/PlayListTrack.ts";
 import PlayList from "../types/PlayList.ts";
 import { asyncHandler } from "../utils/asyncHandler.ts";
 import { ApiError } from "../utils/ApiError.ts";

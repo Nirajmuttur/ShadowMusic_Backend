@@ -1,7 +1,6 @@
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
-import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
 import authRoutes from './routes/authRoutes.ts'
 import playListRoutes from './routes/playListRoutes.ts';
@@ -9,7 +8,6 @@ import trackRoutes from './routes/trackRoutes.ts';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 
-dotenv.config()
 const app = express()
 
 app.use(cors({
