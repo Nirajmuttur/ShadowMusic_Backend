@@ -47,7 +47,7 @@ const specs = swaggerJsdoc(options);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use('/api', authRoutes)
-app.use('/api', playListRoutes)
+app.use('/api/sync', playListRoutes)
 app.use('/api', trackRoutes)
 
 app.get('/', (req, res) => {

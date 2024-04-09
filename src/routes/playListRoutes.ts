@@ -44,7 +44,7 @@ const router = express.Router();
  */
 /**
  * @swagger
- * /api/getPlayList:
+ * /api/sync/playList:
  *   get:
  *     description: Get playlists
  *     responses:
@@ -59,7 +59,7 @@ router.route('/getPlayList').get(spotifyAuthMiddelware, getPlayList)
 
 /**
  * @swagger
- * /api/playlists/{playlistId}/tracks:
+ * /api/sync/playlists/{playlistId}/tracks:
  *   get:
  *     description: Get playlists Track
  *     parameters:
@@ -76,5 +76,6 @@ router.route('/getPlayList').get(spotifyAuthMiddelware, getPlayList)
  *                  $ref: '#components/schemas/PlaylistTrack'
  */
 router.route('/playlists/:playlistId/tracks').get(spotifyAuthMiddelware, getPlayListTracks)
+
 
 export default router

@@ -13,11 +13,15 @@ const playlistTrackSchema = new Schema({
     albums:[
         {
             type: Schema.Types.ObjectId,
-            ref: "Image"
+            ref: "ImageModel"
         }
-    ]
+    ],
+    playlistId:{
+        type: Schema.Types.ObjectId,
+        ref: "Playlist"
+    }
 },{
     timestamps:true
 })
 
-export const PlayListTrack = mongoose.model("PlayListTrack",playlistTrackSchema)
+export const PlayListTrackModel = mongoose.model("PlayListTrack",playlistTrackSchema)
