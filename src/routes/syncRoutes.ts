@@ -1,5 +1,5 @@
 import express from 'express';
-import { getPlayList, getPlayListTracks } from '../controller/playListController.ts';
+import { syncPlayListTracks, syncPlayList } from '../controller/syncController.ts';
 import { spotifyAuthMiddelware } from '../controller/authController.ts';
 
 const router = express.Router();
@@ -55,7 +55,7 @@ const router = express.Router();
  *             schema:
  *                  $ref: '#components/schemas/Playlist'
  */
-router.route('/getPlayList').get(spotifyAuthMiddelware, getPlayList)
+router.route('/getPlayList').get(spotifyAuthMiddelware, syncPlayList)
 
 /**
  * @swagger
@@ -75,7 +75,7 @@ router.route('/getPlayList').get(spotifyAuthMiddelware, getPlayList)
  *             schema:
  *                  $ref: '#components/schemas/PlaylistTrack'
  */
-router.route('/playlists/:playlistId/tracks').get(spotifyAuthMiddelware, getPlayListTracks)
+router.route('/playlists/:playlistId/tracks').get(spotifyAuthMiddelware, syncPlayListTracks)
 
 
 export default router

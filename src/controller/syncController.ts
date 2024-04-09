@@ -12,7 +12,7 @@ import { ImageModel } from "../models/images.model.ts";
 import { Artists } from "../models/artist.model.ts";
 import { PlayListTrackModel } from "../models/playlistTracks.model.ts";
 
-export const getPlayList = asyncHandler(async (req: Request, res: Response,next:NextFunction) => {
+export const syncPlayList = asyncHandler(async (req: Request, res: Response,next:NextFunction) => {
   const auth = req.headers.authorization;
   const accessToken = auth?.split(" ")[1];
   const response: AxiosResponse<any> = await axios.get(
@@ -55,7 +55,7 @@ export const getPlayList = asyncHandler(async (req: Request, res: Response,next:
 
 });
 
-export const getPlayListTracks = asyncHandler(async (req: Request, res: Response,next:NextFunction) => {
+export const syncPlayListTracks = asyncHandler(async (req: Request, res: Response,next:NextFunction) => {
   const auth = req.headers.authorization;
   const accessToken = auth?.split(" ")[1];
   let playlistId = req.params.playlistId;

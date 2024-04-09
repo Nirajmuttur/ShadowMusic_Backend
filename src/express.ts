@@ -3,7 +3,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
 import authRoutes from './routes/authRoutes.ts'
-import playListRoutes from './routes/playListRoutes.ts';
+import syncRoutes from './routes/syncRoutes.ts';
 import trackRoutes from './routes/trackRoutes.ts';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
@@ -47,7 +47,7 @@ const specs = swaggerJsdoc(options);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use('/api', authRoutes)
-app.use('/api/sync', playListRoutes)
+app.use('/api/sync', syncRoutes)
 app.use('/api', trackRoutes)
 
 app.get('/', (req, res) => {
