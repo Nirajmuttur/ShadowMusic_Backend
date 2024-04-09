@@ -1,7 +1,7 @@
 interface PlayList{
-    id: number,
+    spotifyPlayListId: number,
     name: string,
-    images: []
+    images: string[]
 
 }
 
