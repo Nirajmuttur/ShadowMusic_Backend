@@ -6,10 +6,16 @@ Shadow Music uses Spotify Api to get playlist track and download from youtube.
 
 ## API Reference
 
-#### Get Playlist Tracks items
+#### Sync Playlist
 
 ```bash
-  GET /api/playlist/{id}/tracks
+  GET /api/sync/playlist
+```
+
+#### Sync Playlist Tracks items
+
+```bash
+  GET /api/sync/playlist/{id}/tracks
 ```
 
 | Parameter | Type     | Description                |
