@@ -1,6 +1,5 @@
 import axios, { AxiosResponse } from "axios";
 import { NextFunction, Request, Response } from "express";
-import PlayListTrack from "../types/PlayListTrack.ts";
 import PlayList from "../types/PlayList.ts";
 import { asyncHandler } from "../utils/asyncHandler.ts";
 import { ApiError } from "../utils/ApiError.ts";
@@ -38,7 +37,7 @@ export const syncPlayList = asyncHandler(async (req: Request, res: Response, nex
         const options = { upsert: true, new: true };
         return await ImageModel.findOneAndUpdate(filter, update, options);
       }))
-      const playlistData:PlayList = {
+      const playlistData: PlayList = {
         spotifyPlayListId: item.id,
         images: images.map(({ _id }) => _id),
         name: item.name,
@@ -76,35 +75,44 @@ export const syncPlayListTracks = asyncHandler(async (req: Request, res: Respons
     }
   );
   if (response.status === 200) {
-    const playListId = await Playlist.findOne({ spotifyPlayListId: playlistId })
-    const playlistTracks = await Promise.all(response.data.items.map(async (item: PlayListTrack) => {
+    const playList = await Playlist.findOne({ spotifyPlayListId: playlistId });
+    const playlistTracksToUpdate: any[] = [];
+    for (const item of response.data.items) {
+
       const artistsPromises = await Promise.all(item.track.artists.map(async (artist: Artist) => {
-        // Save artists and get IDs
-        const savedArtist = await new Artists({
-          spotifyArtistId: artist.id,
-          name: artist.name
-        }).save()
-        return savedArtist._id;
+        const filter = { spotifyArtistId: artist.id };
+        const update = { $setOnInsert: { name: artist.name } };
+        const options = { upsert: true, new: true };
+        const savedArtist = await Artists.findOneAndUpdate(filter, update, options);
+        return savedArtist?._id;
       }))
 
       const imageIds = await Promise.all(item.track.album.images.map(async (image: Image) => {
-        const savedImage = await new ImageModel({
-          height: image.height,
-          url: image.url,
-          width: image.width
-        }).save()
-        return savedImage._id;
+        const filter = { url: image.url };
+        const update = { $setOnInsert: { height: image.height, width: image.width } };
+        const options = { upsert: true, new: true };
+        const savedImage = await ImageModel.findOneAndUpdate(filter, update, options);
+        return savedImage?._id;
       }));
-      return {
+
+      const playlistTrackData = {
         spotifyTrackId: item.track.id,
         name: item.track.name + "-" + item.track.artists[0].name,
         artist: artistsPromises,
         albums: imageIds,
-        playlistId: playListId?._id
+        playlistId: playList?._id
       };
-    }));
 
-    await PlayListTrackModel.insertMany(playlistTracks);
+      playlistTracksToUpdate.push({
+        updateOne: {
+          filter: { spotifyTrackId: playlistTrackData.spotifyTrackId },
+          update: playlistTrackData,
+          upsert: true
+        }
+      });
+    };
+
+    await PlayListTrackModel.bulkWrite(playlistTracksToUpdate);
     const allTracks = await PlayListTrackModel.find({}).populate('artist').populate('albums')
     return res.status(201).json(
       new ApiResponse(200, allTracks)

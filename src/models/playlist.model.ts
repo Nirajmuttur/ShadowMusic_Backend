@@ -16,8 +16,7 @@ const playListSchema = new Schema({
         }
     ]
 },{
-    timestamps:true,
-    _id:false
+    timestamps:true
 
 })
 

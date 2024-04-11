@@ -3,7 +3,6 @@ import mongoose,{Schema} from "mongoose";
 const artistSchema = new Schema({
     spotifyArtistId:{
         type:String,
-        required: true,
         unique: true
     },
     name:{
@@ -11,8 +10,7 @@ const artistSchema = new Schema({
     }
 
 },{
-    timestamps:true,
-    _id:false
+    timestamps:true
 })
 
 export const Artists = mongoose.model("Artists",artistSchema)

@@ -26,8 +26,7 @@ const playlistTrackSchema = new Schema({
         ref: "Playlist"
     }
 },{
-    timestamps:true,
-    _id:false
+    timestamps:true
 })
 
 export const PlayListTrackModel = mongoose.model("PlayListTrack",playlistTrackSchema)
