@@ -2,7 +2,9 @@ import mongoose,{Schema} from "mongoose";
 
 const playListSchema = new Schema({
     spotifyPlayListId:{
-        type: String
+        type: String,
+        required: true,
+        unique: true 
     },
     name:{
         type:String
@@ -14,7 +16,8 @@ const playListSchema = new Schema({
         }
     ]
 },{
-    timestamps:true
+    timestamps:true,
+    _id:false
 
 })
 

@@ -12,7 +12,7 @@ import { ImageModel } from "../models/images.model.ts";
 import { Artists } from "../models/artist.model.ts";
 import { PlayListTrackModel } from "../models/playlistTracks.model.ts";
 
-export const syncPlayList = asyncHandler(async (req: Request, res: Response,next:NextFunction) => {
+export const syncPlayList = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const auth = req.headers.authorization;
   const accessToken = auth?.split(" ")[1];
   const response: AxiosResponse<any> = await axios.get(
@@ -24,26 +24,34 @@ export const syncPlayList = asyncHandler(async (req: Request, res: Response,next
     }
   );
   if (response.status === 200) {
-    const playlists: PlayList[] = [];
-    
-    for(const item of response.data.items){
-      const images = await Promise.all(item.images.map(async(image:Image)=>{
-        const imgModel = new ImageModel({
-          height: image.height,
-          url: image.url,
-          width: image.width
-        })
-        return await imgModel.save()
-        
+    const playlists: any[] = [];
+
+    for (const item of response.data.items) {
+      const images = await Promise.all(item.images.map(async (image: Image) => {
+        const filter = { url: image.url };
+        const update = {
+          $setOnInsert: {
+            height: image.height,
+            width: image.width
+          }
+        };
+        const options = { upsert: true, new: true };
+        return await ImageModel.findOneAndUpdate(filter, update, options);
       }))
-      const playlistData = {
+      const playlistData:PlayList = {
         spotifyPlayListId: item.id,
         images: images.map(({ _id }) => _id),
         name: item.name,
       };
-      playlists.push(playlistData);
+      playlists.push({
+        updateOne: {
+          filter: { spotifyPlayListId: playlistData.spotifyPlayListId },
+          update: playlistData,
+          upsert: true
+        }
+      });
     }
-    await Playlist.insertMany(playlists);
+    await Playlist.bulkWrite(playlists);
     const allPlaylists = await Playlist.find({}).populate('images');
     return res.status(201).json(
       new ApiResponse(200, allPlaylists)
@@ -55,7 +63,7 @@ export const syncPlayList = asyncHandler(async (req: Request, res: Response,next
 
 });
 
-export const syncPlayListTracks = asyncHandler(async (req: Request, res: Response,next:NextFunction) => {
+export const syncPlayListTracks = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const auth = req.headers.authorization;
   const accessToken = auth?.split(" ")[1];
   let playlistId = req.params.playlistId;
@@ -68,8 +76,8 @@ export const syncPlayListTracks = asyncHandler(async (req: Request, res: Respons
     }
   );
   if (response.status === 200) {
-    const playListId = await Playlist.findOne({spotifyPlayListId:playlistId})
-    const playlistTracks = await Promise.all(response.data.items.map(async(item: PlayListTrack) => {
+    const playListId = await Playlist.findOne({ spotifyPlayListId: playlistId })
+    const playlistTracks = await Promise.all(response.data.items.map(async (item: PlayListTrack) => {
       const artistsPromises = await Promise.all(item.track.artists.map(async (artist: Artist) => {
         // Save artists and get IDs
         const savedArtist = await new Artists({
@@ -88,6 +96,7 @@ export const syncPlayListTracks = asyncHandler(async (req: Request, res: Respons
         return savedImage._id;
       }));
       return {
+        spotifyTrackId: item.track.id,
         name: item.track.name + "-" + item.track.artists[0].name,
         artist: artistsPromises,
         albums: imageIds,

@@ -1,6 +1,11 @@
 import mongoose,{Schema} from "mongoose";
 
 const playlistTrackSchema = new Schema({
+    spotifyTrackId:{
+        type: String,
+        required: true,
+        unique: true 
+    },
     name:{
         type:String
     },
@@ -21,7 +26,8 @@ const playlistTrackSchema = new Schema({
         ref: "Playlist"
     }
 },{
-    timestamps:true
+    timestamps:true,
+    _id:false
 })
 
 export const PlayListTrackModel = mongoose.model("PlayListTrack",playlistTrackSchema)

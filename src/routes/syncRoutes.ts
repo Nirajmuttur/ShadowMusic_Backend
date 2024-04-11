@@ -55,7 +55,7 @@ const router = express.Router();
  *             schema:
  *                  $ref: '#components/schemas/Playlist'
  */
-router.route('/getPlayList').get(spotifyAuthMiddelware, syncPlayList)
+router.route('/playList').get(spotifyAuthMiddelware, syncPlayList)
 
 /**
  * @swagger
