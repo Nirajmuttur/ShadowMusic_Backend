@@ -3,8 +3,9 @@ import ytdl from "ytdl-core";
 import { Request, Response } from "express";
 import puppeter from "puppeteer";
 import fs from "fs";
+import { asyncHandler } from "../utils/asyncHandler";
 
-export const getIdByName = async (req: Request, res: Response) => {
+export const getIdByName = asyncHandler(async (req: Request, res: Response) => {
   let songName = req.params.id.replace(" ", "+");
   console.log(process.env.SCRAPE_URL + songName);
 
@@ -20,18 +21,8 @@ export const getIdByName = async (req: Request, res: Response) => {
   let trackUrl = $('a[id="video-title"]').attr("href");
 
   console.log(trackUrl);
-  const audio = ytdl(`https://www.youtube.com/${trackUrl}`, {
-    filter: "audioonly",
-  });
   res.writeHead(200,{"Content-Type":"audio/mp3"});
-  audio.pipe(fs.createWriteStream(`${songName}.mp3`));
-  audio.on("response", (resp) => {
-    resp.on("data", (chunk:any) => {
-      res.write(chunk)
-    });
-  });
-  audio.on("finish", () => {
-    console.log("finished");
-    res.end();
-  });
-};
+  ytdl(`https://www.youtube.com/${trackUrl}`, {
+    filter: "audioonly",
+  }).pipe(res)
+});
