@@ -1,17 +1,15 @@
 {
     "version": 2,
-    "buildCommand": "npm run build",
-    "outputDirectory": "dist",
     "builds": [
       {
-        "src": "dist/server.js",
+        "src": "src/server.ts",
         "use": "@now/node"
       }
     ],
     "routes": [
       {
         "src": "/(.*)",
-        "dest": "dist/server.js"
+        "dest": "src/server.ts"
       }
     ]
   }
